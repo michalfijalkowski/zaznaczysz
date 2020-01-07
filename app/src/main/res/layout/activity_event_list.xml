@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".EventListActivity"
+        android:id="@+id/eventScrollView">
+
+        <LinearLayout
+            android:id="@+id/eventLinearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/activity_vertical_margin"
+            android:layout_marginRight="@dimen/activity_vertical_margin"
+            android:orientation="vertical">
+
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="10dp"
+        android:gravity="bottom">
+
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabRank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginStart="@dimen/fab_margin"
+            android:layout_marginLeft="@dimen/fab_margin"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginEnd="@dimen/fab_margin"
+            android:layout_marginRight="@dimen/fab_margin"
+            android:layout_marginBottom="@dimen/fab_margin"
+            android:scaleType="center"
+            android:src="@drawable/ic_rank2"
+            app:backgroundTint="#d5cf24"
+            app:maxImageSize="50dp" />
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">zaZNACZYSZ</string>
+    <string name="app_description">Twój głos ma znaczenie!</string>
+    <string name="action_sign_in">Zaloguj</string>
+    <string name="action_register">Zarejestruj</string>
+    <string name="prompt_password">hasło</string>
+    <string name="prompt_login">nazwa użytkownika</string>
+    <string name="action_settings">SETTINGS</string>
+    <string name="title_activity_event">EventActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+
+
+    //proposition creator
+    <string name="create_proposition_header">Stwórz nową propozycję</string>
+    <string name="proposition_name">Nazwa</string>
+    <string name="proposition_description">Opis</string>
+    <string name="prompt_proposition_name">nazwa</string>
+    <string name="prompt_proposition_description">opis</string>
+
+    //register
+    <string name="register_header">Rejestracja</string>
+    <string name="register_username">Nazwa użytkownika</string>
+    <string name="register_password">Hasło</string>
+    <string name="register_button">Zarejestruj</string>
+
+    //userPanel
+    <string name="panel_group">Lista grup</string>
+    <string name="panel_user_ranking">Ranking aktywności użytkowników</string>
+    <string name="dołacz_do_grupy">Dołącz do grupy podając kod</string>
+    <string name="prompt_group_code">kod grupy</string>
+    <string name="join_button">Dołącz</string>
+
+    <string name="vote">Zagłosuj</string>
+    <string name="prompt_comment">komentarz</string>
+    <string name="discuss_button">Chat</string>
+
+
+</resources>
