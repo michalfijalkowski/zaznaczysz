@@ -9,6 +9,7 @@ import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
 import android.os.Environment
+import android.text.Layout
 import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -19,9 +20,11 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_event_list.*
 import kotlinx.android.synthetic.main.activity_group.*
+import kotlinx.android.synthetic.main.activity_main.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
+import pl.zaznaczysz.cfg.Const
 import pl.zaznaczysz.model.Group
 import pl.zaznaczysz.provider.GroupProvider
 import java.io.File
@@ -31,13 +34,13 @@ class GroupActivity : AppCompatActivity() {
 
     val ClickListener =
         View.OnClickListener { v ->
-            groupController(v.getTag().toString().toInt())
+            groupController(v.getTag(R.string.groupId).toString().toInt(), v.getTag(R.string.groupName).toString())
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_group)
-
+        Const.setBackground(groupRelativeLayout)
 
     }
 
@@ -48,10 +51,11 @@ class GroupActivity : AppCompatActivity() {
         loadControls()
     }
 
-    private fun groupController(groupId: Int) {
+    private fun groupController(groupId: Int, groupName: String) {
         val intent = Intent(this, EventListActivity::class.java)
         intent.putExtra("userId", getIntent().getIntExtra("userId", 0))
         intent.putExtra("groupId", groupId)
+        intent.putExtra("groupName", groupName)
         startActivity(intent)
 
     }
@@ -60,7 +64,7 @@ class GroupActivity : AppCompatActivity() {
     private fun loadControls() {
 
         doAsync {
-            val groupProvider = GroupProvider()
+            val groupProvider = GroupProvider
             var list: List<Group> = groupProvider.groupList("WHERE id_group IN (SELECT id_group from activity_point WHERE id_user = ${getIntent().getIntExtra("userId", 0)}) ORDER BY id_group;")
 
             uiThread {
@@ -76,7 +80,7 @@ class GroupActivity : AppCompatActivity() {
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
 
-        lp.setMargins(0, 0, 0, 5)
+        lp.setMargins(0, 0, 0, 30)
 
         listGroup.forEach {
             createControl(lp, it)
@@ -89,17 +93,21 @@ class GroupActivity : AppCompatActivity() {
         linearLayout.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT)
 
+        //linearLayout.setBackgroundColor(Color.parseColor("#33FFFFFF"))
+
+
         linearLayout.orientation = LinearLayout.VERTICAL
         linearLayout.isClickable = true
         linearLayout.setOnClickListener(ClickListener)
-        linearLayout.setTag(group.id_group)
+        linearLayout.setTag(R.string.groupId, group.id_group)
+        linearLayout.setTag(R.string.groupName, group.name)
 
 
         //groupLinearLayout.addView(createTextView("NAZWA:", 30F, true), lp)
-        linearLayout.addView(createTextView(group.name, 30F, true), lp)
+        linearLayout.addView(createTextView(group.name, 23F, true), lp)
         //groupLinearLayout.addView(createImageView(group.id_group, group.name + ".jpg"), lp)
         //groupLinearLayout.addView(createTextView("OPIS:", 30F, true), lp)
-        linearLayout.addView(createTextView(group.description, 20F, false), lp)
+        linearLayout.addView(createTextView(group.description, 15F, false), lp)
 
         var lpView = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -120,55 +128,13 @@ class GroupActivity : AppCompatActivity() {
         val textView = TextView(this)
         textView.text = text
         textView.textSize = textSize
+        textView.setTextColor(Color.BLACK)
         if (bold == true)
             textView.setTypeface(null, Typeface.BOLD)
 
         return textView
     }
 
-    private fun createImageView(groupId: Int, photoName: String): ImageView {
-        val imageView = ImageButton(this)
-        imageView.setOnClickListener(ClickListener)
-        imageView.setBackgroundColor(Color.TRANSPARENT)
-        imageView.setTag(groupId)
-        imageView.layoutParams = LinearLayout.LayoutParams(360, 360) // value is in pixels
-
-
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                )
-            ) {
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        Manifest.permission.READ_EXTERNAL_STORAGE
-                    ),
-                    0
-                )
-            }
-        }
-
-        val imgFile = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/zaznaczysz",
-            photoName
-        )
-        if (imgFile.exists()) {
-            val myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath())
-            imageView.setImageBitmap(myBitmap)
-        } else {
-            val imgResId = R.drawable.launcher_icon
-            imageView.setImageResource(imgResId)
-        }
-
-        return imageView
-    }
 }
 
 

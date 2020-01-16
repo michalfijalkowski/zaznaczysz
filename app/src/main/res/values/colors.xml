@@ -17,4 +17,13 @@
     <color name="red">#E20015</color>
     <color name="turquoise">#00A8B0</color>
     <color name="white">#ffffff</color>
+
+    <color name="mainApp">#03aa9f</color>
+    <color name="BLUE">#ccebff</color>
+    <color name="PINK">#f1dae3</color>
+    <color name="GREEN">#ddff99</color>
+    <color name="PURPLE">#dab3ff</color>
+    <color name="YELLOW">#ffffb3</color>
+    <color name="WHITE">#FFFFFF</color>
+
 </resources>

@@ -12,10 +12,13 @@ import kotlinx.android.synthetic.main.activity_discussion.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
+import pl.zaznaczysz.cfg.Const
 import pl.zaznaczysz.model.Comment
 import pl.zaznaczysz.provider.ActivityProvider
 import pl.zaznaczysz.provider.CommentProvider
 import pl.zaznaczysz.provider.UserProvider
+import pl.zaznaczysz.provider.UserSettingsProvider
+import pl.zaznaczysz.tool.CommonTool
 
 
 class DiscussionActivity : AppCompatActivity() {
@@ -23,6 +26,7 @@ class DiscussionActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_discussion)
+        Const.setBackground(discussionRelativeLayout)
     }
 
     override fun onResume() {
@@ -42,7 +46,7 @@ class DiscussionActivity : AppCompatActivity() {
         var btnSend = createButton(editText)
 
         doAsync {
-            var list: List<Comment> = CommentProvider().propositionList("WHERE id_proposition = $propositionId ORDER BY id_comment")
+            var list: List<Comment> = CommentProvider.propositionList("WHERE id_proposition = $propositionId ORDER BY id_comment")
 
 
             uiThread {
@@ -52,6 +56,7 @@ class DiscussionActivity : AppCompatActivity() {
 
 
                 discussionLinearLayout.addView(editText)
+
 
                 var lpButton = LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
@@ -145,11 +150,16 @@ class DiscussionActivity : AppCompatActivity() {
 
     private fun createButton(editText: EditText): Button {
         var btnSend = Button(this)
-        btnSend.setBackgroundResource(R.drawable.button_form2)
+        btnSend.setBackgroundResource(R.drawable.button_form_zaznaczysz)
         btnSend.textSize = 20f
-        btnSend.text = "Wyślij"
-        btnSend.gravity = Gravity.RIGHT
+        btnSend.text = "        Wyślij"
+        //btnSend.gravity = Gravity.BOTTOM
+        btnSend.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.mipmap.ic_message, 0)
+        btnSend.setBackgroundResource(R.drawable.button_form_zaznaczysz)
 
+
+        val userId = getIntent().getIntExtra("userId", 0)
+        val groupId = getIntent().getIntExtra("groupId", 0)
 
         btnSend.setOnClickListener {
 
@@ -164,9 +174,22 @@ class DiscussionActivity : AppCompatActivity() {
 
 
                 doAsync {
-                    CommentProvider().insertComment(newComment)
-                    ActivityProvider().updateActivityUser(getIntent().getIntExtra("userId", 0), getIntent().getIntExtra("groupId", 0), 1)
-                    UserProvider().updateActivityUser(getIntent().getIntExtra("userId", 0), 1)
+                    CommentProvider.insertComment(newComment)
+                    if (Const.CHALLENGE_DONE) {
+                        CommonTool.updateUserActivity(userId, groupId, 1)
+                    } else {
+                        val userS = UserSettingsProvider.userSettingsList("WHERE id_user = $userId").get(0)
+
+                        if (userS.task1 > 0) {
+                            CommonTool.updateUserActivity(userId, groupId, 1)
+                        } else {
+                            CommonTool.updateUserActivity(userId, groupId, 7)
+
+                            UserSettingsProvider.updateActivityUser("UPDATE public.user_settings SET task1 = 1 WHERE id_user = $userId")
+
+
+                        }
+                    }
                     uiThread {
                         finish()
                         startActivity(getIntent())
@@ -181,6 +204,8 @@ class DiscussionActivity : AppCompatActivity() {
 
         return btnSend
     }
+
+
 
     private fun createTextView(
         text: String,

@@ -2,9 +2,11 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainScrollView"
+    android:fillViewport="true"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context=".GroupActivity">
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -21,7 +23,7 @@
             android:layout_centerVertical="true"
             android:layout_marginTop="50dp"
             android:gravity="center"
-            android:text="@string/app_name"
+            android:text="@string/app_name_title"
             android:textColor="#000000"
             android:textSize="50sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -32,10 +34,11 @@
         <TextView
             android:id="@+id/tvDesc"
             style="?android:attr/textAppearanceSmall"
-            android:layout_width="0dp"
-            android:layout_height="19dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:text="@string/app_description"
+            android:textSize="17dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -45,11 +48,12 @@
             android:id="@+id/iv_vote"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:src="@mipmap/ic_logo"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            android:src="@drawable/ic_vote"
-            app:layout_constraintTop_toBottomOf="@+id/tvDesc"/>
+            app:layout_constraintTop_toBottomOf="@+id/tvDesc" />
 
 
         <EditText
@@ -57,9 +61,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
+            android:backgroundTint="@color/mainApp"
             android:hint="@string/prompt_login"
             android:inputType="textEmailAddress"
             android:selectAllOnFocus="true"
+            android:textSize="@dimen/text_size_medium"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -75,6 +81,7 @@
             android:imeOptions="actionDone"
             android:inputType="textPassword"
             android:selectAllOnFocus="true"
+            android:textSize="@dimen/text_size_medium"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/username" />
@@ -83,10 +90,12 @@
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
             android:layout_marginBottom="64dp"
-            android:background="@drawable/button_form2"
+            android:background="@drawable/button_form_zaznaczysz"
+            android:drawableRight="@mipmap/ic_login"
+            android:paddingLeft="48dp"
             android:text="@string/action_sign_in"
+            android:textSize="@dimen/text_size_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -99,14 +108,17 @@
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="64dp"
-            android:background="@drawable/button_form2"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/button_form_zaznaczysz"
+            android:drawableRight="@mipmap/ic_register"
+            android:paddingLeft="48dp"
             android:text="@string/action_register"
+            android:textSize="@dimen/text_size_small"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnLogin"
-            app:layout_constraintVertical_bias="0.43" />
+            app:layout_constraintVertical_bias="0.0" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

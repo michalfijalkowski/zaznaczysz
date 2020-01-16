@@ -11,24 +11,24 @@ import pl.zaznaczysz.model.Group
 import pl.zaznaczysz.model.User
 
 class GroupProvider {
+    companion object {
+        fun groupList(where: String): List<Group> {
+            val client = OkHttpClient()
 
-    fun groupList(where: String): List<Group> {
-        val client = OkHttpClient()
+            val request: Request = Request.Builder()
+                .url(Const.SERVICE_GROUP)
+                .addHeader(
+                    "where",
+                    where
+                )
+                .build()
 
-        val request: Request = Request.Builder()
-            .url(Const.SERVICE_GROUP)
-            .addHeader(
-                "where",
-                where
-            )
-            .build()
+            var response = client.newCall(request).execute()
+            val json = JsonParser().parse(response.body!!.string()).asJsonArray
+            var list: List<Group> = Gson().fromJson(json, object : TypeToken<List<Group>>() {}.type)
 
-        var response = client.newCall(request).execute()
-        val json = JsonParser().parse(response.body!!.string()).asJsonArray
-        var list: List<Group> = Gson().fromJson(json, object : TypeToken<List<Group>>() {}.type)
-
-        return list
-    }
+            return list
+        }
 
 //    fun insertGroup(username: String, password: String): User {
 //        TODO()
@@ -60,4 +60,5 @@ class GroupProvider {
 //        return u
 //    }
 
+    }
 }

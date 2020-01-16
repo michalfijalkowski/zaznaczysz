@@ -1,28 +1,27 @@
 package pl.zaznaczysz
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.EditText
-import kotlinx.android.synthetic.main.activity_main.*
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_register.*
-import kotlinx.android.synthetic.main.activity_register.btnRegister
-import kotlinx.android.synthetic.main.activity_register.password
-import kotlinx.android.synthetic.main.activity_register.username
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
-import pl.zaznaczysz.model.User
+import pl.zaznaczysz.cfg.Const
+import pl.zaznaczysz.security.Password
 import pl.zaznaczysz.provider.ActivityProvider
 import pl.zaznaczysz.provider.JoinProvider
 import pl.zaznaczysz.provider.UserProvider
+import pl.zaznaczysz.provider.UserSettingsProvider
+
 
 class RegisterActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
-
-
+        Const.setBackground(registerScrollView)
     }
 
     override fun onResume() {
@@ -37,23 +36,31 @@ class RegisterActivity : AppCompatActivity() {
         btnRegister.setOnClickListener {
 
             if (validate(username) && validate(password)) {
-                val userProvider = UserProvider()
+
+                for (i in 0 until registerLayout.childCount) {
+                    val child: View = registerLayout.getChildAt(i)
+                    child.setEnabled(false)
+                }
+                val userProvider = UserProvider
                 doAsync {
                     val user = userProvider.insertUser(
                         username.text.toString().trim(),
-                        password.text.toString()
+                        Password.getHashed(password.text.toString()),
+                        0
                     )
 
                     uiThread {
                         if (user.id_user == 0) {
                             toast("Podana nazwa użytkownika jest zajęta")
-                            btnRegister.isEnabled = true
+                            for (i in 0 until registerLayout.childCount) {
+                                val child: View = registerLayout.getChildAt(i)
+                                child.setEnabled(true)
+                            }
                         } else {
                             doAsync {
-                                JoinProvider().updateJoin(user.id_user, 1)
-                                JoinProvider().updateJoin(user.id_user, 2)
-                                ActivityProvider().insertActivity(user.id_user, 1, 0, user.username)
-                                ActivityProvider().insertActivity(user.id_user, 2, 0, user.username)
+                                ActivityProvider.insertActivity(user.id_user, 1, 0, user.username)
+                                ActivityProvider.insertActivity(user.id_user, 2, 0, user.username)
+                                UserSettingsProvider.insertUser(user.id_user, "white")
                             }
                             toast("Zarejestrowano użytkownika ${user.username}")
                             finish()

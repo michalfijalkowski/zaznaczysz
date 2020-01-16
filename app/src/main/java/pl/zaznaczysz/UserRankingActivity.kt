@@ -15,6 +15,7 @@ import kotlinx.android.synthetic.main.activity_group.*
 import kotlinx.android.synthetic.main.activity_user_ranking.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.uiThread
+import pl.zaznaczysz.cfg.Const
 import pl.zaznaczysz.model.Activity
 import pl.zaznaczysz.model.User
 import pl.zaznaczysz.provider.ActivityProvider
@@ -26,6 +27,8 @@ class UserRankingActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_user_ranking)
+        Const.setBackground(userRankRelativeLayout)
+        setTitle("${getIntent().getStringExtra("groupName")}")
         loadControlls()
     }
 
@@ -45,7 +48,7 @@ class UserRankingActivity : AppCompatActivity() {
         val idGroup = getIntent().getIntExtra("groupId", 0)
         doAsync {
 
-            val list: List<Activity> = ActivityProvider().ActivityList("WHERE id_group = ${getIntent().getIntExtra("groupId", 0)} ORDER BY activity_points DESC;")
+            val list: List<Activity> = ActivityProvider.ActivityList("WHERE id_group = ${getIntent().getIntExtra("groupId", 0)} ORDER BY activity_points DESC;")
             uiThread {
                 if (list.isNotEmpty())
                     for (x in 0..list.size-1) {

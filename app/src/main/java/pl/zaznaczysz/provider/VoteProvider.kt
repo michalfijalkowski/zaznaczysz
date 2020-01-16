@@ -11,48 +11,47 @@ import pl.zaznaczysz.model.Vote
 
 class VoteProvider {
 
-    fun voteList(where: String): List<Vote> {
-        val client = OkHttpClient()
+    companion object {
 
-        val request: Request = Request.Builder()
-            .url(Const.SERVICE_VOTE)
-            .addHeader(
-                "where",
-                where
-            )
-            .build()
+        fun voteList(where: String): List<Vote> {
+            val client = OkHttpClient()
 
-        var response = client.newCall(request).execute()
-        val json = JsonParser().parse(response.body!!.string()).asJsonArray
-        var list: List<Vote> = Gson().fromJson(json, object : TypeToken<List<Vote>>() {}.type)
+            val request: Request = Request.Builder()
+                .url(Const.SERVICE_VOTE)
+                .addHeader(
+                    "where",
+                    where
+                )
+                .build()
 
-        return list
+            var response = client.newCall(request).execute()
+            val json = JsonParser().parse(response.body!!.string()).asJsonArray
+            var list: List<Vote> = Gson().fromJson(json, object : TypeToken<List<Vote>>() {}.type)
+
+            return list
+        }
+
+        fun updateVote(userId: Int, eventId: Int, propositionId: Int): Vote {
+            val client = OkHttpClient()
+
+            var vote = Vote(userId, eventId, propositionId)
+
+            val formBody = Gson().toJson(vote).toRequestBody()
+
+            val request: Request = Request.Builder()
+                .post(formBody)
+                .header("Accept", "application/json")
+                .header("Content-type", "application/json;charset=utf-8")
+                .url(Const.SERVICE_VOTE)
+                .build()
+
+            var response = client.newCall(request).execute()
+            val jsonStr: String = response.body!!.string()
+
+            val prop = Gson().fromJson(jsonStr, Vote::class.java)
+
+            return prop
+        }
+
     }
-
-    fun updateVote(userId: Int, eventId: Int, propositionId: Int): Vote {
-        val client = OkHttpClient()
-
-        var vote = Vote(userId, eventId, propositionId)
-
-        val formBody =  Gson().toJson(vote).toRequestBody()
-
-        val request: Request = Request.Builder()
-            .post(formBody)
-            .header("Accept", "application/json")
-            .header("Content-type","application/json;charset=utf-8")
-            .url(Const.SERVICE_VOTE)
-            .build()
-
-        var response = client.newCall(request).execute()
-        val jsonStr :String = response.body!!.string()
-
-        val prop =  Gson().fromJson(jsonStr, Vote::class.java)
-
-        return prop
-    }
-
-
-
-
-
 }

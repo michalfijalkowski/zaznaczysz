@@ -1,29 +1,26 @@
 package pl.zaznaczysz
 
-import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Bundle
-import android.os.Environment
 import android.view.View
-import android.widget.ImageButton
+import android.view.Window
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import kotlinx.android.synthetic.main.activity_event_list.*
 import kotlinx.android.synthetic.main.activity_proposition_list.*
+import okhttp3.internal.proxy.NullProxySelector.select
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
+import pl.zaznaczysz.cfg.Const
 import pl.zaznaczysz.model.Proposition
 import pl.zaznaczysz.provider.PropositionProvider
 import pl.zaznaczysz.provider.VoteProvider
-import java.io.File
+import kotlin.random.Random
 
 
 class PropositionListActivity : AppCompatActivity() {
@@ -34,16 +31,17 @@ class PropositionListActivity : AppCompatActivity() {
         }
 
     var pickProposition = 0
+    var fistRun: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_proposition_list)
-
+        Const.setBackground(propositionListRelativeLayout)
     }
 
     override fun onResume() {
         super.onResume()
-        setTitle("PROPOZYCJE")
+        setTitle(getIntent().getStringExtra("groupName") + " > " + getIntent().getStringExtra("eventName"))
         if ((propositionLinearLayout as LinearLayout).childCount > 0) (propositionLinearLayout as LinearLayout).removeAllViews()
         loadControls(getIntent().getIntExtra("eventId", 0))
 
@@ -68,22 +66,26 @@ class PropositionListActivity : AppCompatActivity() {
     private fun loadControls(eventId: Int) {
         val userId = getIntent().getIntExtra("userId", 0)
 
+        propositionLinearLayout.addView(createTextViewTitle("Lista propozycji:"))
 
-        fab.setOnClickListener {
-            addPropositions(userId, eventId)
+        createViewLine()
+
+
+        fabAddProposition.setOnClickListener {
+            addPropositions(userId, eventId, getIntent().getIntExtra("groupId", 0))
         }
 
-        fab2.setOnClickListener {
+        fabRankProposition.setOnClickListener {
             propositionRanking(userId, eventId)
         }
 
 
 
         doAsync {
-            val propositionProvider = PropositionProvider()
+            val propositionProvider = PropositionProvider
             var list: List<Proposition> =
-                propositionProvider.propositionList("WHERE id_event = $eventId ORDER BY id_proposition DESC;")
-            val vote = VoteProvider().voteList("WHERE id_user = $userId and id_event = $eventId")
+                propositionProvider.propositionList("WHERE id_event = $eventId ORDER BY promotion DESC, random();")
+            val vote = VoteProvider.voteList("WHERE id_user = $userId and id_event = $eventId")
 
             var pickPropositionId = 0
             if (vote.isNotEmpty()) {
@@ -92,6 +94,17 @@ class PropositionListActivity : AppCompatActivity() {
             pickProposition = pickPropositionId
             uiThread {
                 loadPropositions(list, pickPropositionId)
+                if (!fistRun) {
+                    fistRun = true
+                    var listPromote: List<Proposition> = arrayListOf()
+                    list.forEach {
+                        if (it.promotion > 0) {
+                            listPromote += it
+                        }
+                    }
+                    promoteInfo(listPromote)
+                }
+
             }
         }
 
@@ -101,14 +114,19 @@ class PropositionListActivity : AppCompatActivity() {
         val intent = Intent(this, PropositionRankingActivity::class.java)
         intent.putExtra("userId", userId)
         intent.putExtra("eventId", eventId)
+        intent.putExtra("groupName", getIntent().getStringExtra("groupName"))
+        intent.putExtra("eventName", getIntent().getStringExtra("eventName"))
+        intent.putExtra("groupId", getIntent().getIntExtra("groupId", 0))
+        intent.putExtra("pickProposition", pickProposition)
         startActivity(intent)
     }
 
-    private fun addPropositions(userId: Int, eventId: Int) {
+    private fun addPropositions(userId: Int, eventId: Int, groupId: Int) {
 
         val intent = Intent(this, CreatePropositionActivity::class.java)
         intent.putExtra("userId", userId)
         intent.putExtra("eventId", eventId)
+        intent.putExtra("groupId", groupId)
         startActivity(intent)
     }
 
@@ -118,7 +136,7 @@ class PropositionListActivity : AppCompatActivity() {
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
 
-        lp.setMargins(0, 0, 0, 15)
+        lp.setMargins(0, 0, 0, 30)
 
         listProposition.forEach {
             if (it.id_proposition == pickPropositionId) {
@@ -144,17 +162,26 @@ class PropositionListActivity : AppCompatActivity() {
 
 
         if (pick) {
-            linearLayout.addView(createTextView(proposition.name, 40F, true, Color.parseColor("#03aa9f")), lp)
+            linearLayout.addView(
+                createTextView(
+                    proposition.name, 23F, true, Color.parseColor("#03aa9f")
+                ), lp
+            )
+        } else if (proposition.promotion > 3) {
+            linearLayout.addView(
+                createTextView(
+                    proposition.name, 30F, false, Color.parseColor("#ff8000")
+                ), lp
+            )
+        } else if (proposition.promotion > 0) {
+            linearLayout.addView(
+                createTextView(
+                    proposition.name, 23F, false, Color.parseColor("#FF0000")
+                ), lp
+            )
         } else {
-            linearLayout.addView(createTextView(proposition.name, 40F, false, Color.BLACK), lp)
+            linearLayout.addView(createTextView(proposition.name, 23F, false, Color.BLACK), lp)
         }
-//        propositionLinearLayout.addView(
-//            createImageView(
-//                proposition.id_proposition,
-//                proposition.photo_name + ".jpg"
-//            ), lp
-//        )
-       // linearLayout.addView(createTextView(proposition.description, 20F, false, Color.BLACK), lp)
 
         var lpView = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -169,11 +196,24 @@ class PropositionListActivity : AppCompatActivity() {
 
     }
 
+
+    private fun createTextViewTitle(text: String): TextView {
+        val textView = TextView(this)
+        textView.text = text
+        textView.textSize = 40F
+        textView.setTextColor(Color.BLACK)
+
+
+        return textView
+    }
+
     private fun createViewLine() {
         var lpView = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
-            4
+            10
         )
+
+        lpView.setMargins(0, 40, 0, 40)
         var view = View(this)
         view.setBackgroundColor(Color.BLACK)
         propositionLinearLayout.addView(view, lpView)
@@ -193,47 +233,53 @@ class PropositionListActivity : AppCompatActivity() {
         return textView
     }
 
-    private fun createImageView(propositionId: Int, photoName: String): ImageView {
-        val imageView = ImageButton(this)
-        imageView.setOnClickListener(ClickListener)
-        imageView.setBackgroundColor(Color.TRANSPARENT)
-        imageView.setTag(propositionId)
-        imageView.layoutParams = LinearLayout.LayoutParams(160, 360) // value is in pixels
+    fun promoteInfo(list: List<Proposition>) {
+        val alertDialog = AlertDialog.Builder(this).create()
 
+        var nr: Int
 
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                )
-            ) {
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        Manifest.permission.READ_EXTERNAL_STORAGE
-                    ),
-                    0
-                )
-            }
+        var size = list.size
+        if (size > 0) {
+
+            if (size < 3)
+                nr = Random.nextInt(size)
+            else
+                nr = Random.nextInt(3)
+            val proposition = list.get(nr)
+            var textView = TextView(this)
+            textView.text = "Zajrzyj do propozycji: <${proposition.name}>. Propozycja  może Cię zainteresować!"
+            textView.textSize = 25F
+            textView.setTextColor(Color.BLACK)
+            textView.setPadding(80, 80, 80, 80)
+            alertDialog.setCustomTitle(textView)
         }
 
-        val imgFile = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/zaznaczysz",
-            photoName
+
+        var view = ImageView(this)
+        view.setImageResource(R.mipmap.ic_promote)
+
+        alertDialog.setView(view)
+
+        alertDialog.setMessage(
+            "\n\n" +
+                    "* Promowanie propozycji zwiększa zainteresowanie! Stwórz propozycję, kliknij jej nazwę i sprawdź naciskając czerwony przycisk z gwiazdą!"
         )
-        if (imgFile.exists()) {
-            val myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath())
-            imageView.setImageBitmap(myBitmap)
-        } else {
-            val imgResId = R.drawable.launcher_icon
-            imageView.setImageResource(imgResId)
-        }
 
-        return imageView
+
+        //alertDialog.setFeatureDrawableResource(Window.FEATURE_RIGHT_ICON, R.drawable.ic_promote)
+        alertDialog.setButton(
+            AlertDialog.BUTTON_NEUTRAL, "OK"
+        ) { dialog, which ->
+            dialog.dismiss()
+        }
+        alertDialog.show()
+
+        val btnNegative = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+        btnNegative.setTextColor(Color.GRAY)
+        btnNegative.textSize = 30f
+        val layoutParams = btnNegative.layoutParams as LinearLayout.LayoutParams
+        layoutParams.weight = 10f
+        btnNegative.layoutParams = layoutParams
     }
+
 }

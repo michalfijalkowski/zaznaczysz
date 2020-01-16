@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:fillViewport="true"
+    android:id="@+id/registerScrollView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -11,6 +13,7 @@
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/activity_vertical_margin"
         android:layout_marginRight="@dimen/activity_vertical_margin"
+        android:id="@+id/registerLayout"
         tools:context=".RegisterActivity">
 
         <TextView
@@ -37,7 +40,7 @@
             android:gravity="left"
             android:text="@string/register_username"
             android:textColor="#000000"
-            android:textSize="@dimen/text_size_small"
+            android:textSize="@dimen/text_size_big"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -50,6 +53,8 @@
             android:hint="@string/prompt_login"
             android:inputType="textEmailAddress"
             android:selectAllOnFocus="true"
+            android:textSize="@dimen/text_size_medium"
+            android:backgroundTint="@color/mainApp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -64,7 +69,7 @@
             android:gravity="left"
             android:text="@string/register_password"
             android:textColor="#000000"
-            android:textSize="@dimen/text_size_small"
+            android:textSize="@dimen/text_size_big"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -75,6 +80,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/prompt_password"
+            android:textSize="@dimen/text_size_medium"
+            android:backgroundTint="@color/mainApp"
             android:inputType="textPassword"
             android:selectAllOnFocus="true"
             app:layout_constraintEnd_toEndOf="parent"
@@ -83,14 +90,17 @@
             app:layout_constraintTop_toBottomOf="@+id/registerPassword" />
 
         <Button
+            android:drawableRight="@mipmap/ic_tick"
+            android:textSize="@dimen/text_size_small"
             android:id="@+id/btnRegister"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="start"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="32dp"
-            android:background="@drawable/button_form2"
+            android:background="@drawable/button_form_zaznaczysz"
             android:text="@string/register_button"
+            android:paddingLeft="48dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

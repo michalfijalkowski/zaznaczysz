@@ -1,29 +1,24 @@
 package pl.zaznaczysz
 
 import android.Manifest
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View.OnLongClickListener
-import android.widget.Toast
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonParser
-import com.google.gson.reflect.TypeToken
 import kotlinx.android.synthetic.main.activity_main.*
-import okhttp3.OkHttpClient
-import okhttp3.Request
+import kotlinx.android.synthetic.main.activity_main.btnRegister
+import kotlinx.android.synthetic.main.activity_main.password
+import kotlinx.android.synthetic.main.activity_main.username
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
-import pl.zaznaczysz.model.User
+import pl.zaznaczysz.cfg.Const
+import pl.zaznaczysz.security.Password
 import pl.zaznaczysz.provider.UserProvider
+import pl.zaznaczysz.provider.UserSettingsProvider
 
 
 class MainActivity : AppCompatActivity() {
@@ -32,10 +27,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val xxx = Password.getHashed("o")
+        val yyyy = Password.getHashed("y")
     }
 
     override fun onResume() {
         super.onResume()
+        Const.setBackground(mainScrollView)
+
         loadControls()
 
         if (ContextCompat.checkSelfPermission(
@@ -59,28 +59,43 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        username.setText("t")
+        password.setText("t")
+
     }
 
-    fun loadControls() {
+    private fun loadControls() {
 
-//        btnVote.setOnClickListener {
-//
-//        }
+        for (i in 0 until mainScrollView.childCount) {
+            val child: View = mainScrollView.getChildAt(i)
+            child.setEnabled(true)
+        }
+
 
         btnLogin.setOnClickListener {
-            val userProvider = UserProvider()
+
+            for (i in 0 until mainScrollView.childCount) {
+                val child: View = mainScrollView.getChildAt(i)
+                child.setEnabled(false)
+            }
+
             val intent = Intent(this, UserPanelActivity::class.java)
+            intent.putExtra("fromMain", 1)
             doAsync {
-                val userId =
-                    userProvider.correctLogin(username.text.toString(), password.text.toString())
-                if (userId != 0)
+                val user =
+                    UserProvider.insertUser(username.text.toString(), Password.getHashed(password.text.toString()), -1)
+                if (user.id_user != 0 && user.id_user != -1)
                     uiThread {
-                        intent.putExtra("userId", userId)
+                        intent.putExtra("userId", user.id_user)
                         startActivity(intent)
                     }
                 else
                     uiThread {
-                        toast("fail")
+                        for (i in 0 until mainScrollView.childCount) {
+                            val child: View = mainScrollView.getChildAt(i)
+                            child.setEnabled(true)
+                        }
+                        toast("Niepoprawne dane użytkownika")
                     }
             }
         }
@@ -92,6 +107,8 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
+
+
 
 
 }

@@ -7,6 +7,14 @@ class User {
     var password: String
     var activity_points = 0
 
+
+    constructor() {
+        this.id_user = 0
+        this.username = ""
+        this.password = ""
+        this.activity_points = 0
+    }
+
     constructor(
         id_user: Int,
         username: String,

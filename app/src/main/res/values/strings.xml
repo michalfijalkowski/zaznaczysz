@@ -1,4 +1,6 @@
 <resources>
+
+    <string name="app_name_title">za<font color='#03aa9f'>ZNACZYSZ</font></string>
     <string name="app_name">zaZNACZYSZ</string>
     <string name="app_description">Twój głos ma znaczenie!</string>
     <string name="action_sign_in">Zaloguj</string>
@@ -25,7 +27,8 @@
     <string name="register_button">Zarejestruj</string>
 
     //userPanel
-    <string name="panel_group">Lista grup</string>
+    <string name="panel_group">Twoje grupy</string>
+    <string name="panel_task">Twoje wyzwania</string>
     <string name="panel_user_ranking">Ranking aktywności użytkowników</string>
     <string name="dołacz_do_grupy">Dołącz do grupy podając kod</string>
     <string name="prompt_group_code">kod grupy</string>
@@ -34,6 +37,23 @@
     <string name="vote">Zagłosuj</string>
     <string name="prompt_comment">komentarz</string>
     <string name="discuss_button">Chat</string>
+
+    //challenge
+    <string name="challenge_title">Zadania</string>
+    <string name="challenge_description">Podejmij wyzwanie i spróbuj wykonać wszystkie zadania.\n Każde z zadań jest specjalnie punktowane - za wykonanie otrzymasz 7pkt.\n Za wypełnienie wszystkich zadań otrzymasz premię w wysokości aż 50 punktów!</string>
+    <string name="task1">Dodaj komentarz do dowolnej propozycji</string>
+    <string name="task2">Oddaj głos na propozycję</string>
+    <string name="task3">Stwórz własną propozcyję</string>
+    <string name="task4">Dodaj propozcyję w dyskusji "Zmiany aplikacji mobilnej"</string>
+    <string name="task5">Zmień motyw aplikacji na Ustro</string>
+    <string name="premia">Nie wykonałeś wszystkich zadań</string>
+
+    //TAGS
+    <string name="groupId">0</string>
+    <string name="groupName">DYSKUSJE</string>
+
+    <string name="eventId">0</string>
+    <string name="eventName">PROPOZYCJE</string>
 
 
 </resources>

@@ -6,21 +6,25 @@ import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
+import android.opengl.Visibility
 import android.os.Bundle
 import android.os.Environment
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.ForegroundColorSpan
 import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import kotlinx.android.synthetic.main.activity_event_list.*
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.activity_proposition_list.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.toast
 import org.jetbrains.anko.uiThread
+import pl.zaznaczysz.cfg.Const
+import pl.zaznaczysz.model.Activity
 import pl.zaznaczysz.model.Event
+import pl.zaznaczysz.provider.ActivityProvider
 import pl.zaznaczysz.provider.EventProvider
 import java.io.File
 
@@ -29,40 +33,31 @@ class EventListActivity : AppCompatActivity() {
 
     val ClickListener =
         View.OnClickListener {
-                v -> eventController(v.getTag().toString().toInt())
+                v -> eventController(v.getTag(R.string.eventId).toString().toInt(), v.getTag(R.string.eventName).toString())
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_event_list)
-
-
+        Const.setBackground(eventRelativeLayout)
     }
 
     override fun onResume() {
         super.onResume()
-        //scroll opada na sam dol
-        //eventScrollView.postDelayed({ eventScrollView.fullScroll(ScrollView.FOCUS_DOWN) }, 500)
-        val title = "DYSKUSJE"
-        val s = SpannableString(title)
-        s.setSpan(
-            ForegroundColorSpan(Color.WHITE),
-            0,
-            title.length,
-            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-        )
-        supportActionBar!!.setTitle(s)
+        setTitle("${getIntent().getStringExtra("groupName")}")
         if ((eventLinearLayout as LinearLayout).childCount > 0) (eventLinearLayout as LinearLayout).removeAllViews()
         loadControls(getIntent().getIntExtra("groupId", 0))
     }
 
 
-    private fun eventController(eventId : Int) {
+    private fun eventController(eventId : Int, eventName: String) {
 
         val intent = Intent(this, PropositionListActivity::class.java)
         intent.putExtra("userId", getIntent().getIntExtra("userId", 0))
         intent.putExtra("groupId", getIntent().getIntExtra("groupId", 0))
+        intent.putExtra("groupName", getIntent().getStringExtra("groupName"))
         intent.putExtra("eventId", eventId)
+        intent.putExtra("eventName", eventName)
         startActivity(intent)
 
     }
@@ -70,31 +65,52 @@ class EventListActivity : AppCompatActivity() {
 
     private fun loadControls(groupId: Int) {
 
+        eventLinearLayout.addView(createTextViewTitle("Lista dyskusji:"))
+
+        createViewLine()
+
 
         doAsync {
-            val eventProvider = EventProvider()
+            val eventProvider = EventProvider
             var list: List<Event> = eventProvider.eventList("WHERE id_group = $groupId ORDER BY id_event DESC;")
 
+            val admin: List<Activity> = ActivityProvider.ActivityList("WHERE id_user = ${getIntent().getIntExtra("userId", 0)} AND id_group = $groupId")
+
+            if(admin.get(0).admin_user) {
+                uiThread {
+                    fabAddEvent.isVisible = true
+                }
+            }
             uiThread {
                 loadEvents(list)
             }
 
         }
 
-        fabRank.setOnClickListener{
-            val intent = Intent(this, UserRankingActivity::class.java)
-            intent.putExtra("userId", getIntent().getIntExtra("userId", 0))
-            intent.putExtra("groupId", getIntent().getIntExtra("groupId", 0))
-            startActivity(intent)
+        fabRankUser.setOnClickListener{
+            userRank()
 
+        }
+
+        fabAddEvent.setOnClickListener{
+
+            addEvent(groupId)
         }
     }
 
-    private fun addEvents() {
-
-        val intent = Intent(this, CreatePropositionActivity::class.java)
+    private fun userRank() {
+        val intent = Intent(this, UserRankingActivity::class.java)
         intent.putExtra("userId", getIntent().getIntExtra("userId", 0))
         intent.putExtra("groupId", getIntent().getIntExtra("groupId", 0))
+        intent.putExtra("groupName", getIntent().getStringExtra("groupName"))
+        startActivity(intent)
+    }
+
+    private fun addEvent(groupId: Int) {
+
+        val intent = Intent(this, CreatePropositionActivity::class.java)
+        intent.putExtra("option", 1)
+        intent.putExtra("groupId", groupId)
         startActivity(intent)
     }
 
@@ -104,7 +120,7 @@ class EventListActivity : AppCompatActivity() {
             LinearLayout.LayoutParams.WRAP_CONTENT
         )
 
-        lp.setMargins(0, 0, 0, 5)
+        lp.setMargins(0, 0, 0, 30)
 
         listEvent.forEach {
             createControl(lp, it)
@@ -120,12 +136,12 @@ class EventListActivity : AppCompatActivity() {
         linearLayout.orientation = LinearLayout.VERTICAL
         linearLayout.isClickable = true
         linearLayout.setOnClickListener(ClickListener)
-        linearLayout.setTag(event.id_event)
+        linearLayout.setTag(R.string.eventId, event.id_event)
+        linearLayout.setTag(R.string.eventName, event.name)
 
 
-        linearLayout.addView(createTextView(event.name, 30F, false), lp)
-        //eventLinearLayout.addView(createImageView(event.id_event, event.name + ".jpg"), lp)
-        linearLayout.addView(createTextView(event.description, 20F, false), lp)
+        linearLayout.addView(createTextView(event.name, 23F, true), lp)
+        linearLayout.addView(createTextView(event.description, 15F, false), lp)
 
         var lpView = LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
@@ -144,53 +160,34 @@ class EventListActivity : AppCompatActivity() {
         val textView = TextView(this)
         textView.text = text
         textView.textSize = textSize
-        if (bold == true)
+        textView.setTextColor(Color.BLACK)
+        if (bold == true) {
             textView.setTypeface(null, Typeface.BOLD)
+        }
 
         return textView
     }
 
-    private fun createImageView(eventId : Int, photoName: String): ImageView {
-        val imageView = ImageButton(this)
-        imageView.setOnClickListener(ClickListener)
-        imageView.setBackgroundColor(Color.TRANSPARENT)
-        imageView.setTag(eventId)
-        imageView.layoutParams = LinearLayout.LayoutParams(160, 360) // value is in pixels
-
-
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(
-                    this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                )
-            ) {
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(
-                        Manifest.permission.READ_EXTERNAL_STORAGE
-                    ),
-                    0
-                )
-            }
-        }
-
-        val imgFile = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).toString() + "/zaznaczysz",
-            photoName
+    private fun createViewLine() {
+        var lpView = LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            10
         )
-        if (imgFile.exists()) {
-            val myBitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath())
-            imageView.setImageBitmap(myBitmap)
-        } else {
-            val imgResId = R.drawable.launcher_icon
-            imageView.setImageResource(imgResId)
-        }
+        lpView.setMargins(0,40,0,40)
+        var view = View(this)
+        view.setBackgroundColor(Color.BLACK)
+        eventLinearLayout.addView(view, lpView)
 
-        return imageView
     }
+
+    private fun createTextViewTitle(text: String): TextView {
+        val textView = TextView(this)
+        textView.text = text
+        textView.textSize = 40F
+        textView.setTextColor(Color.BLACK)
+
+        return textView
+    }
+
+
 }

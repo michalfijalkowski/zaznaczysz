@@ -2,9 +2,11 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/createScrollView"
+    android:fillViewport="true"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    tools:context=".GroupActivity">
+    tools:context=".CreatePropositionActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/createPropositionLayout"
@@ -49,9 +51,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/prompt_proposition_name"
-            android:inputType="textEmailAddress"
+            android:inputType="textCapSentences"
             android:selectAllOnFocus="true"
             android:textSize="@dimen/text_size_small"
+            android:backgroundTint="#03aa9f"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -64,6 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
             android:gravity="left"
+            android:inputType="textMultiLine"
             android:text="@string/proposition_description"
             android:textSize="@dimen/text_size_medium"
             app:layout_constraintEnd_toEndOf="parent"
@@ -77,9 +81,10 @@
             android:layout_height="100dp"
             android:gravity="left"
             android:hint="@string/prompt_proposition_description"
-            android:inputType="textMultiLine"
+            android:inputType="textMultiLine|textCapSentences"
             android:selectAllOnFocus="true"
             android:textSize="@dimen/text_size_small"
+            android:backgroundTint="#03aa9f"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -97,13 +102,15 @@
             android:visibility="gone"/>
 
         <Button
+            android:drawableRight="@mipmap/ic_idea"
+            android:textSize="@dimen/text_size_small"
             android:id="@+id/btnCamera"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="@drawable/button_form2"
-            android:drawableRight="@mipmap/ic_vote"
+            android:background="@drawable/button_form_zaznaczysz"
             android:text="Zrób zdjęcie"
+            android:paddingLeft="48dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -112,15 +119,17 @@
             android:visibility="gone"/>
 
         <Button
+            android:drawableRight="@mipmap/ic_idea"
+            android:textSize="@dimen/text_size_small"
             android:id="@+id/btnAdd"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="48dp"
             android:layout_marginBottom="32dp"
-            android:background="@drawable/button_form2"
-            android:drawableRight="@mipmap/ic_vote"
+            android:background="@drawable/button_form_zaznaczysz"
             android:text="Dodaj propozycję"
+            android:paddingLeft="48dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

@@ -11,48 +11,49 @@ import pl.zaznaczysz.model.Event
 import pl.zaznaczysz.model.User
 
 class EventProvider {
+    companion object {
+        fun eventList(where: String): List<Event> {
+            val client = OkHttpClient()
 
-    fun eventList(where: String): List<Event> {
-        val client = OkHttpClient()
+            val request: Request = Request.Builder()
+                .addHeader(
+                    "where",
+                    where
+                )
+                .url(Const.SERVICE_EVENT)
+                .build()
 
-        val request: Request = Request.Builder()
-            .addHeader(
-                "where",
-                where
-            )
-            .url(Const.SERVICE_EVENT)
-            .build()
+            var response = client.newCall(request).execute()
+            val json = JsonParser().parse(response.body!!.string()).asJsonArray
+            var list: List<Event> = Gson().fromJson(json, object : TypeToken<List<Event>>() {}.type)
 
-        var response = client.newCall(request).execute()
-        val json = JsonParser().parse(response.body!!.string()).asJsonArray
-        var list: List<Event> = Gson().fromJson(json, object : TypeToken<List<Event>>() {}.type)
+            return list
+        }
 
-        return list
+        fun insertUser(username: String, password: String): User {
+            TODO()
+            val client = OkHttpClient()
+
+            var user = User(-1, username, password, -1)
+
+
+            val xxx = Gson().toJson(user)
+            val formBody = Gson().toJson(user).toRequestBody()
+
+            val request: Request = Request.Builder()
+                .post(formBody)
+                .header("Accept", "application/json")
+                .header("Content-type", "application/json;charset=utf-8")
+                .url(Const.SERVICE_USER)
+                .build()
+
+            var response = client.newCall(request).execute()
+            val jsonStr: String = response.body!!.string()
+
+            val u = Gson().fromJson(jsonStr, User::class.java)
+
+            return u
+        }
+
     }
-
-    fun insertUser(username: String, password: String): User {
-        TODO()
-        val client = OkHttpClient()
-
-        var user = User(-1, username, password, -1)
-
-
-    val xxx = Gson().toJson(user)
-    val formBody = Gson().toJson(user).toRequestBody()
-
-    val request: Request = Request.Builder()
-        .post(formBody)
-        .header("Accept", "application/json")
-        .header("Content-type", "application/json;charset=utf-8")
-        .url(Const.SERVICE_USER)
-        .build()
-
-    var response = client.newCall(request).execute()
-    val jsonStr: String = response.body!!.string()
-
-    val u = Gson().fromJson(jsonStr, User::class.java)
-
-    return u
-}
-
 }
